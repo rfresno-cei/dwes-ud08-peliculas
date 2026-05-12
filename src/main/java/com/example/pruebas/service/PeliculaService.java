@@ -6,22 +6,45 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.pruebas.exception.ResourceNotFoundException;
 import com.example.pruebas.model.Pelicula;
+import com.example.pruebas.repository.ActorRepository;
+import com.example.pruebas.repository.PeliculaRepository;
 
 @Service
 public class PeliculaService {
-    private List<Pelicula> repository = new ArrayList<>();
+    private final PeliculaRepository peliculaRepository;
+    private final ActorRepository actorRepository;
+
+    public PeliculaService(PeliculaRepository peliculaRepository, ActorRepository actorRepository) {
+        this.peliculaRepository = peliculaRepository;
+        this.actorRepository = actorRepository;
+    }
 
     public List<Pelicula> obtenerTodas() {
-        return repository;
+        return peliculaRepository.findAll();
     }
 
     public Pelicula crear(Pelicula p) {
-        repository.add(p);
-        return p;
+        p.setActores(new ArrayList<>());
+        return peliculaRepository.save(p);
     }
 
-    public Optional<Pelicula> obtenerPorId(Long id) {
-        return repository.stream().filter(p -> p.getId().equals(id)).findFirst();
+    public Pelicula buscarPorId(Long id) {
+        return peliculaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("La película no existe"));
+    }
+
+    public Pelicula actualizar(Pelicula p, Long id) {
+        Pelicula encontrada = buscarPorId(id);
+        encontrada.setTitulo(p.getTitulo());
+        encontrada.setDirector(p.getDirector());
+        encontrada.setDuracion(p.getDuracion());
+        encontrada.setAnyo(p.getAnyo());
+        return peliculaRepository.save(encontrada);
+    }
+
+    public void borrar(Long id) {
+        Pelicula encontrada = buscarPorId(id);
+        peliculaRepository.delete(encontrada);
     }
 }
