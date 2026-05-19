@@ -6,7 +6,9 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.pruebas.dto.PeliculasActores;
 import com.example.pruebas.exception.ResourceNotFoundException;
+import com.example.pruebas.model.Actor;
 import com.example.pruebas.model.Pelicula;
 import com.example.pruebas.repository.ActorRepository;
 import com.example.pruebas.repository.PeliculaRepository;
@@ -46,5 +48,41 @@ public class PeliculaService {
     public void borrar(Long id) {
         Pelicula encontrada = buscarPorId(id);
         peliculaRepository.delete(encontrada);
+    }
+
+    public Pelicula asignarActor(Long peliculaId, Long actorId) {
+        Pelicula p = buscarPorId(peliculaId);
+        Actor a = actorRepository.findById(actorId)
+        .orElseThrow(() -> new ResourceNotFoundException("El actor no existe"));
+        p.getActores().add(a);
+        return peliculaRepository.save(p);
+    }
+
+    public Pelicula desasignarActor(Long peliculaId, Long actorId) {
+        Pelicula p = buscarPorId(peliculaId);
+        Actor a = actorRepository.findById(actorId)
+        .orElseThrow(() -> new ResourceNotFoundException("El actor no existe"));
+        p.getActores().remove(a);
+        return peliculaRepository.save(p);
+    }
+
+    public List<Pelicula> getModernas() {
+        return peliculaRepository.getPeliculasModernas();
+    }
+
+    public List<Pelicula> getPalabraExacta(String busqueda) {
+        return peliculaRepository.getPorTitulo(busqueda);
+    }
+
+    public List<Pelicula> getContiene(String busqueda) {
+        return peliculaRepository.findByTituloContaining(busqueda);
+    }
+
+    public double getMediaDuracion() {
+        return peliculaRepository.getMediaDuracion();
+    }
+
+    public List<PeliculasActores> getNumActores() {
+        return peliculaRepository.getNumActores();
     }
 }

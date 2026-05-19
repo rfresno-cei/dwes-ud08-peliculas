@@ -12,11 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.service.annotation.DeleteExchange;
 
+import com.example.pruebas.dto.PeliculasActores;
 import com.example.pruebas.model.Pelicula;
 import com.example.pruebas.service.PeliculaService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/peliculas")
@@ -33,7 +36,7 @@ public class PeliculaController {
     }
 
     @PostMapping
-    public ResponseEntity<Pelicula> crearPelicula(@RequestBody Pelicula p) {
+    public ResponseEntity<Pelicula> crearPelicula(@Valid @RequestBody Pelicula p) {
         return new ResponseEntity<>(peliculaService.crear(p), HttpStatus.CREATED);
     }
 
@@ -43,7 +46,7 @@ public class PeliculaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Pelicula> actualizar(@PathVariable Long id, @RequestBody Pelicula p) {
+    public ResponseEntity<Pelicula> actualizar(@PathVariable Long id, @Valid @RequestBody Pelicula p) {
         return ResponseEntity.ok(peliculaService.actualizar(p, id));
     }
 
@@ -51,5 +54,40 @@ public class PeliculaController {
     public ResponseEntity<Void> borrar(@PathVariable Long id) {
         peliculaService.borrar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{peliculaId}/actores/{actorId}")
+    public ResponseEntity<Pelicula> asignarActor(@PathVariable Long peliculaId, @PathVariable Long actorId) {
+        return ResponseEntity.ok(peliculaService.asignarActor(peliculaId, actorId));
+    }
+
+    @DeleteMapping("/{peliculaId}/actores/{actorId}")
+    public ResponseEntity<Pelicula> desasignarActor(@PathVariable Long peliculaId, @PathVariable Long actorId) {
+        return ResponseEntity.ok(peliculaService.desasignarActor(peliculaId, actorId));
+    }
+
+    @GetMapping("/hola")
+    public List<Pelicula> getModernas() {
+        return peliculaService.getModernas();
+    }
+
+    @GetMapping("/adios")
+    public List<Pelicula> getPalabraExacta(@RequestParam String palabra) {
+        return peliculaService.getPalabraExacta(palabra);
+    }
+
+    @GetMapping("/chao")
+    public List<Pelicula> getContiene(@RequestParam String busqueda) {
+        return peliculaService.getContiene(busqueda);
+    }
+
+    @GetMapping("/media")
+    public double getMediaDuracion() {
+        return peliculaService.getMediaDuracion();
+    }
+
+    @GetMapping("/numactores")
+    public List<PeliculasActores> getNumActores() {
+        return peliculaService.getNumActores();
     }
 }
